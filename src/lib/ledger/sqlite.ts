@@ -2,7 +2,7 @@ import { open } from "react-native-nitro-sqlite";
 
 // Match Expo SQLite's existing Documents/SQLite (iOS) and files/SQLite (Android).
 const db = open({ name: "tic-tax-ledger.db", location: "SQLite" });
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const CREATE_TRANSACTIONS_SQL = `CREATE TABLE transactions (
   id TEXT PRIMARY KEY,
   type TEXT CHECK(type IN ('INCOME', 'EXPENSE', 'TAX_PAYMENT', 'SUBSCRIPTION')),
@@ -25,29 +25,45 @@ async function migrateLedgerDatabase(): Promise<void> {
     }
     if (version === SCHEMA_VERSION) return;
 
-    const { results: columns } = await tx.executeAsync(
-      "PRAGMA table_info(transactions)",
-    );
-    if (columns.length > 0) {
-      const names = new Set(columns.map((column) => String(column.name)));
-      // Older local ledgers predate category/note; preserve those rows too.
-      const category = names.has("category") ? "category" : "NULL";
-      const note = names.has("note") ? "note" : "NULL";
-      await tx.executeAsync(
-        "ALTER TABLE transactions RENAME TO transactions_legacy",
+    if (version < 1) {
+      const { results: columns } = await tx.executeAsync(
+        "PRAGMA table_info(transactions)",
       );
-      await tx.executeAsync(CREATE_TRANSACTIONS_SQL);
-      await tx.executeAsync(`INSERT INTO transactions (
-        id, type, amount, status, category, note, tax_rate, created_at, updated_at
-      ) SELECT id, type, amount, status, ${category}, ${note}, tax_rate, created_at, updated_at
-        FROM transactions_legacy`);
-      await tx.executeAsync("DROP TABLE transactions_legacy");
-    } else {
-      await tx.executeAsync(CREATE_TRANSACTIONS_SQL);
+      if (columns.length > 0) {
+        const names = new Set(columns.map((column) => String(column.name)));
+        // Older local ledgers predate category/note; preserve those rows too.
+        const category = names.has("category") ? "category" : "NULL";
+        const note = names.has("note") ? "note" : "NULL";
+        await tx.executeAsync(
+          "ALTER TABLE transactions RENAME TO transactions_legacy",
+        );
+        await tx.executeAsync(CREATE_TRANSACTIONS_SQL);
+        await tx.executeAsync(`INSERT INTO transactions (
+          id, type, amount, status, category, note, tax_rate, created_at, updated_at
+        ) SELECT id, type, amount, status, ${category}, ${note}, tax_rate, created_at, updated_at
+          FROM transactions_legacy`);
+        await tx.executeAsync("DROP TABLE transactions_legacy");
+      } else {
+        await tx.executeAsync(CREATE_TRANSACTIONS_SQL);
+      }
+      await tx.executeAsync(
+        "CREATE INDEX idx_transactions_created_at ON transactions(created_at DESC)",
+      );
     }
-    await tx.executeAsync(
-      "CREATE INDEX idx_transactions_created_at ON transactions(created_at DESC)",
-    );
+
+    if (version < 2) {
+      await tx.executeAsync(`CREATE TABLE subscriptions (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        monthly_cost INTEGER NOT NULL,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at INTEGER,
+        updated_at INTEGER
+      )`);
+      await tx.executeAsync(
+        "CREATE INDEX idx_subscriptions_active ON subscriptions(is_active, created_at)",
+      );
+    }
     await tx.executeAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);
   });
 }

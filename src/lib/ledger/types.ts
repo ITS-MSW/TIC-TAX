@@ -21,3 +21,12 @@ export type LedgerTransactionRow = {
   created_at: number;
   updated_at: number;
 };
+
+export type SubscriptionRow = {
+  id: string;
+  name: string;
+  monthly_cost: number;
+  is_active: number;
+  created_at: number;
+  updated_at: number;
+};

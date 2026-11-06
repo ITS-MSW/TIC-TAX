@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { convexClient } from "@/src/lib/convex/client";
 import { initLedgerDatabase } from "@/src/lib/ledger/sqlite";
 import { useLedgerStore } from "@/src/store/useLedgerStore";
+import { useSubscriptionStore } from "@/src/store/useSubscriptionStore";
 
 const secureStorage = {
   getItem: SecureStore.getItemAsync,
@@ -33,6 +34,7 @@ export default function RootLayout() {
     void (async () => {
       await initLedgerDatabase();
       await useLedgerStore.getState().hydrate();
+      await useSubscriptionStore.getState().hydrate();
     })();
 
     if (Platform.OS === "android") {
