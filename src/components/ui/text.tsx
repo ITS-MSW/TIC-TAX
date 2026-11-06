@@ -1,6 +1,7 @@
 import { Text as RNText, type TextProps as RNTextProps } from "react-native";
 import { tv, type VariantProps } from "tailwind-variants";
 
+// Retained typography adapter: HeroUI Native has no standalone Text primitive.
 const text = tv({
   base: "text-left",
   variants: {

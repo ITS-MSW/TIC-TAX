@@ -18,6 +18,7 @@ const safeStyles: Record<SafeArea, string> = {
   none: "pt-2 pb-safe-offset-4",
 };
 
+// Retained screen layout: owns safe-area spacing and keyboard-aware scrolling, not controls.
 export function SafeScreen({
   children,
   scrollable = false,
