@@ -2,7 +2,7 @@ import { Flame, Skull } from "lucide-react-native";
 import { View } from "react-native";
 
 import { Text } from "@/src/components/ui/text";
-import { PlumCard } from "../../ui/PlumCard";
+import { Card } from "heroui-native";
 
 export interface SurvivalClockProps {
   runwayMonths: number;
@@ -50,7 +50,7 @@ export function SurvivalClock({
         </Text>
       </View>
 
-      <PlumCard className="px-8 py-4 flex-row items-center gap-6 border">
+      <Card className="bg-accent rounded-xl px-8 py-4 flex-row items-center gap-6 border">
         <View>
           <Text variant="small">Monthly Burn</Text>
           <Text variant="large" className="text-foreground">
@@ -66,7 +66,7 @@ export function SurvivalClock({
               : formatCurrency(safeToSpend).replace("+ ", "")}
           </Text>
         </View>
-      </PlumCard>
+      </Card>
     </View>
   );
 }

@@ -1,5 +1,4 @@
-import { CustomButton } from "@/src/components/ui/custom-button";
-import { Input, Label, TextField } from "heroui-native";
+import { Button, Input, Label, TextField } from "heroui-native";
 import React from "react";
 import { View } from "react-native";
 
@@ -51,19 +50,30 @@ export function SandboxInput({
       </View>
 
       <View className="flex flex-row gap-2">
-        <CustomButton
-          variant="primary"
-          label="Add to Sandbox"
-          onPress={onAddToSandbox}
-          className="w-full"
-        />
+        <View className="my-6">
+          <Button
+            className="h-14 rounded-xl items-center justify-center flex-row bg-plum-night w-full"
+            feedbackVariant="scale"
+            onPress={onAddToSandbox}
+          >
+            <Button.Label className="font-bold text-white">
+              Add to Sandbox
+            </Button.Label>
+          </Button>
+        </View>
 
-        <CustomButton
-          variant="primary"
-          label={isExecuting ? "Executing..." : "Execute Trade"}
-          onPress={onExecuteTrade}
-          isDisabled={cartLength === 0 || isExecuting}
-        />
+        <View className="my-6">
+          <Button
+            className="h-14 rounded-xl items-center justify-center flex-row bg-plum-night"
+            feedbackVariant="scale"
+            onPress={onExecuteTrade}
+            isDisabled={cartLength === 0 || isExecuting}
+          >
+            <Button.Label className="font-bold text-white">
+              {isExecuting ? "Executing..." : "Execute Trade"}
+            </Button.Label>
+          </Button>
+        </View>
       </View>
     </View>
   );

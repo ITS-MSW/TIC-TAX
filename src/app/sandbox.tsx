@@ -4,7 +4,8 @@ import { formatCurrency } from "@/src/components/lib/format-currency";
 import { toCents } from "@/src/lib/ledger/money";
 import { OpportunityCost } from "@/src/components/screens/sandbox/OpportunityCost";
 import { SandboxInput } from "@/src/components/screens/sandbox/SandboxInput";
-import { BackButton } from "@/src/components/ui/back-button";
+import { Button } from "heroui-native";
+import { Icon } from "@/src/components/ui/icon";
 import { ExpenseList } from "@/src/components/ui/expense-list";
 import { Text } from "@/src/components/ui/text";
 import { useRouter } from "expo-router";
@@ -115,7 +116,17 @@ export default function SandboxScreen() {
   return (
     <SafeScreen safeArea="both">
       {/* Header */}
-      <BackButton onPress={() => router.back()} />
+      <View className="flex-row items-center justify-between">
+        <Button
+          variant="tertiary"
+          size="sm"
+          isIconOnly
+          onPress={() => router.back()}
+          accessibilityLabel="Back to Runway"
+        >
+          <Icon name="chevron-back-sharp" size={20} color="white" />
+        </Button>
+      </View>
 
       {/* Impact Section: The Opportunity Cost */}
       <OpportunityCost

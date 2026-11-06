@@ -1,7 +1,7 @@
 import { LottieLoading } from "@/src/components/animations/LottieLoading";
 import { RenderIf } from "@/src/components/helpers/render-if";
 import { formatCurrencyNoSign } from "@/src/components/lib/format-currency";
-import { PlumCard } from "@/src/components/ui/PlumCard";
+import { Card } from "heroui-native";
 import { Text } from "@/src/components/ui/text";
 import { TouchableOpacity, View } from "react-native";
 
@@ -23,7 +23,7 @@ export function FinanceSummary({
   return (
     <View className="py-4 gap-4">
       {/* Safe to Spend Card */}
-      <PlumCard className="p-6">
+      <Card className="bg-accent rounded-xl p-6">
         <View className="flex flex-row justify-between items-center">
           <View>
             <Text variant="smallBold" className="mb-1">
@@ -35,7 +35,7 @@ export function FinanceSummary({
           </View>
           <LottieLoading size={100} />
         </View>
-      </PlumCard>
+      </Card>
 
       <View className="flex flex-row gap-4">
         <TouchableOpacity
@@ -43,26 +43,26 @@ export function FinanceSummary({
           onLongPress={onTaxHostageLongPress}
           delayLongPress={300}
         >
-          <PlumCard className="">
+          <Card className="bg-accent rounded-xl">
             <Text variant="small" className="mb-1">
               Tax Hostage
             </Text>
             <Text variant="smallBold">
               {isLoading ? "..." : formatCurrencyNoSign(taxHostage)}
             </Text>
-          </PlumCard>
+          </Card>
         </TouchableOpacity>
 
         <RenderIf condition={pendingCapital > 0}>
           <View className="flex-1">
-            <PlumCard className="">
+            <Card className="bg-accent rounded-xl">
               <Text variant="small" className="mb-1">
                 Awaiting Payment
               </Text>
               <Text variant="smallBold">
                 {isLoading ? "..." : formatCurrencyNoSign(pendingCapital)}
               </Text>
-            </PlumCard>
+            </Card>
           </View>
         </RenderIf>
       </View>
