@@ -69,7 +69,7 @@ export function RecentActivitySection<T extends RecentActivityTransaction>({
                 No Items Yet
               </Text>
             </View>
-          ) : null
+          ) : undefined
         }
         renderItem={({ item: tx, index }) => {
           const icon = getTransactionIcon(tx);
