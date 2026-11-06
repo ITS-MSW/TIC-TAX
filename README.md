@@ -6,7 +6,7 @@ TIC-TAX is a mobile app for tracking cash flow, quarantining taxes, managing rec
 
 Version `1.2.0` is the big one:
 
-- SQLite-first ledger with idempotent Convex sync
+- Local-only SQLite ledger and subscription storage
 - Runway tab for recurring costs and survival clock
 - Long-press deletion flows for transactions and subscriptions
 - Tax Hostage reset flow for cleared taxes
@@ -19,16 +19,16 @@ No charts for the sake of charts. No SaaS nonsense. Just the numbers that matter
 - The 3-second loop matters. If logging takes longer, the UI failed.
 - Time is the real currency. Every expense should tell you how much life it burns.
 - Taxes are not “available balance.” Pending invoices are not cash. Reality wins.
-- Your ledger should work offline first, then sync when the network stops being dramatic.
+- Your ledger should work offline without an account or network connection.
 - JS-thread abuse is a crime. Keep the UI native, fast, and boring where it needs to be.
 
 
-### Offline-First Ledger
+### Local SQLite Storage
 
-- Transactions now live in local SQLite as the source of truth.
-- Writes are optimistic locally, then synced to Convex with UUID-based idempotency.
-- The app flushes pending syncs when the app foregrounds or the network comes back.
-- Remote rows are pulled back into the local ledger so another device does not get to gaslight you.
+- Transactions and subscriptions live in local SQLite as the only persistence layer.
+- Transaction inserts update local state optimistically and roll back that state if persistence fails.
+- Subscription changes update local state after persistence succeeds.
+- Data stays on the device; there is no account, cloud persistence, or cross-device sync.
 
 ### Runway Tab
 
@@ -50,10 +50,9 @@ No charts for the sake of charts. No SaaS nonsense. Just the numbers that matter
 
 ## Tech Stack
 
-- [Expo](https://expo.dev/) / React Native 0.83
+- [Expo](https://expo.dev/) SDK 58 / React Native 0.88
 - [Expo Router](https://docs.expo.dev/router/introduction/)
-- [Convex](https://www.convex.dev/) for backend, sync, and realtime data
-- SQLite for offline local ledger storage
+- `react-native-nitro-sqlite` and `react-native-nitro-modules` for native SQLite ledger and subscription storage
 - [Uniwind](https://uniwind.dev/) for styling
 - [HeroUI Native](https://heroui.com/) for UI primitives
 - [Reanimated](https://docs.swmansion.com/react-native-reanimated/) for motion
@@ -92,24 +91,23 @@ cd tic-tax
 bun install
 ```
 
-### 3. Start the app
+### 3. Build and start the native app
 
-```bash
-bun run dev
-```
-
-If you want platform-specific runs:
+Nitro SQLite requires a native development build; it does not run in Expo Go. Use an Android emulator/device or an iOS simulator/device:
 
 ```bash
 bun run android
 bun run ios
 ```
 
+After installing the development build, `bun run dev` starts Metro for development. Web persistence is outside the supported mobile-only scope. No backend environment variables are required.
+
 ## Architecture Notes
 
-- `SQLite` is the local source of truth.
-- `Convex` handles sync, realtime updates, and cloud persistence.
-- `expo-secure-store` is used for sensitive persistence.
+- `react-native-nitro-sqlite` opens `SQLite/tic-tax-ledger.db` in the app data directory, preserving the existing database path.
+- Versioned transactional migrations run before the transaction and subscription Zustand stores hydrate.
+- Money is stored as integer cents; `toCents` and `centsToAmount` handle input and display conversion.
+- See [local storage details](docs/offline-mode.md) for schema and lifecycle notes.
 - Expo Router owns navigation. No custom router circus.
 - Bottom sheets, navigation bar handling, and safe-area insets are configured for modern Android behavior.
 
@@ -131,7 +129,7 @@ bun run typecheck
 Keep contributions aligned with the app’s actual job:
 
 - Keep the ledger fast.
-- Keep the sync logic deterministic.
+- Keep migrations data-preserving and local persistence deterministic.
 - Keep UI friction low.
 - Do not reintroduce state management theater or JS-thread animations just to feel productive.
 
