@@ -5,17 +5,16 @@ import { formatCurrency } from "@/src/components/lib/format-currency";
 import { formatRunway } from "@/src/components/lib/format-runway";
 import { DeleteSubscriptionDialog } from "@/src/components/screens/runway/DeleteSubscriptionDialog";
 import { SurvivalClock } from "@/src/components/screens/runway/SurvivalClock";
-import { ExpenseList } from "@/src/components/ui/expense-list";
 import { Icon } from "@/src/components/ui/icon";
 import { PlumGradientBackground } from "@/src/components/ui/PlumGradientBackground";
 import { Text } from "@/src/components/ui/text";
 import { useSubscriptionStore } from "@/src/store/useSubscriptionStore";
 import { centsToAmount } from "@/src/lib/ledger/money";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
+import { Button, Chip, ListGroup } from "heroui-native";
 import { Calculator } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { FlatList, View } from "react-native";
 
 export default function RunwayScreen() {
   const router = useRouter();
@@ -77,23 +76,28 @@ export default function RunwayScreen() {
   }: {
     item: (typeof subscriptions)[0];
   }) => (
-    <TouchableOpacity
-      className="flex-row justify-between items-center py-2 border-b border-white/5"
+    <ListGroup.Item
+      className="px-0 py-2 gap-0 justify-between border-b border-white/5"
       onLongPress={() => openDeleteDialog(item.id)}
       delayLongPress={300}
     >
-      <View className="size-8 items-center justify-center shrink-0">
+      <ListGroup.ItemPrefix className="size-8 items-center justify-center shrink-0">
         <Icon name="arrow-up-outline" size={18} color="red" />
-      </View>
-      <View className="flex-1 mr-8">
-        <Text numberOfLines={1}>{item.name}</Text>
-      </View>
-      <View className="items-end">
+      </ListGroup.ItemPrefix>
+      <ListGroup.ItemContent className="mr-8">
+        <ListGroup.ItemTitle
+          className="text-base leading-6 font-medium text-foreground/80"
+          numberOfLines={1}
+        >
+          {item.name}
+        </ListGroup.ItemTitle>
+      </ListGroup.ItemContent>
+      <ListGroup.ItemSuffix className="items-end">
         <Text variant="xs">
           {formatCurrency(centsToAmount(item.monthly_cost)).replace("+ ", "")}
         </Text>
-      </View>
-    </TouchableOpacity>
+      </ListGroup.ItemSuffix>
+    </ListGroup.Item>
   );
 
   return (
@@ -126,14 +130,30 @@ export default function RunwayScreen() {
 
       {/* Middle Section: The SaaS Bleed */}
 
-      <ExpenseList
-        data={subscriptions}
-        isLoading={!subscriptionsHydrated}
-        keyExtractor={(item) => item.id}
-        title="Continuous Bleed"
-        badge={`${subscriptions.length} ACTIVE`}
-        renderItem={renderSubscription}
-      />
+      <ListGroup variant="transparent" className="flex-1 py-4">
+        <View className="flex-row items-center justify-between mb-2">
+          <Text variant="large">Continuous Bleed</Text>
+          <Chip variant="soft" color="danger" size="md">
+            <Chip.Label>{`${subscriptions.length} ACTIVE`}</Chip.Label>
+          </Chip>
+        </View>
+        <FlatList
+          data={subscriptions}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled
+          ListEmptyComponent={
+            subscriptionsHydrated ? (
+              <View className="py-40 items-center">
+                <Text variant="small" className="text-foreground/20">
+                  No Items Yet
+                </Text>
+              </View>
+            ) : undefined
+          }
+          renderItem={renderSubscription}
+        />
+      </ListGroup>
 
       {/* Bottom Section: Action */}
       <View className="my-6">
