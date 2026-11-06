@@ -1,8 +1,8 @@
 import { formatCurrency } from "@/src/components/lib/format-currency";
-import { TimelineItem } from "@/src/components/ui/Timeline";
+import { Icon } from "@/src/components/ui/icon";
 import { Text } from "@/src/components/ui/text";
-import { Card } from "heroui-native";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { Card, ListGroup } from "heroui-native";
+import { FlatList, View } from "react-native";
 import { CATEGORY_ICONS } from "./constants";
 
 type TransactionType = "IN" | "OUT";
@@ -58,44 +58,51 @@ export function RecentActivitySection<T extends RecentActivityTransaction>({
       <Text variant="large" className="mb-4">
         Recent Activity
       </Text>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item._id}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          !isLoading ? (
-            <View className="py-20 items-center">
-              <Text variant="small" className="text-white/20">
-                No Items Yet
-              </Text>
-            </View>
-          ) : undefined
-        }
-        renderItem={({ item: tx, index }) => {
-          const icon = getTransactionIcon(tx);
-          return (
-            <TouchableOpacity
-              onLongPress={() => onTransactionLongPress(tx)}
-              delayLongPress={300}
-            >
-              <TimelineItem
-                icon={icon.name}
-                iconColor={icon.color}
-                iconBgColor="bg-plum-deep"
-                title={tx.note || tx.category}
-                subtitle={tx.note ? tx.category : undefined}
-                isFirst={index === 0}
-                isLast={index === transactions.length - 1}
-                rightContent={
+      <ListGroup variant="transparent" className="flex-1">
+        <FlatList
+          data={transactions}
+          keyExtractor={(item) => item._id}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            !isLoading ? (
+              <View className="py-20 items-center">
+                <Text variant="small" className="text-white/20">
+                  No Items Yet
+                </Text>
+              </View>
+            ) : undefined
+          }
+          renderItem={({ item: tx }) => {
+            const icon = getTransactionIcon(tx);
+            return (
+              <ListGroup.Item
+                className="px-0 py-2 gap-3"
+                onLongPress={() => onTransactionLongPress(tx)}
+                delayLongPress={300}
+              >
+                <ListGroup.ItemPrefix className="size-8 items-center justify-center shrink-0">
+                  <Icon name={icon.name} size={18} color={icon.color} />
+                </ListGroup.ItemPrefix>
+                <ListGroup.ItemContent>
+                  <ListGroup.ItemTitle className="text-sm leading-5 font-bold text-foreground">
+                    {tx.note || tx.category}
+                  </ListGroup.ItemTitle>
+                  {tx.note && tx.category ? (
+                    <ListGroup.ItemDescription className="text-sm leading-5 font-medium text-foreground/80">
+                      {tx.category}
+                    </ListGroup.ItemDescription>
+                  ) : null}
+                </ListGroup.ItemContent>
+                <ListGroup.ItemSuffix>
                   <Text variant="xs" className={getTransactionTone(tx)}>
                     {formatCurrency(getTransactionAmount(tx))}
                   </Text>
-                }
-              />
-            </TouchableOpacity>
-          );
-        }}
-      />
+                </ListGroup.ItemSuffix>
+              </ListGroup.Item>
+            );
+          }}
+        />
+      </ListGroup>
     </Card>
   );
 }
