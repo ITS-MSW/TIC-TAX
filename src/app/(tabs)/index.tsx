@@ -6,10 +6,11 @@ import { DeleteTransactionDialog } from "@/src/components/screens/home/DeleteTra
 import { FinanceSummary } from "@/src/components/screens/home/FinanceSummary";
 import { PayTaxesDialog } from "@/src/components/screens/home/PayTaxesDialog";
 import { RecentActivitySection } from "@/src/components/screens/home/RecentActivitySection";
-import { CustomButton } from "@/src/components/ui/custom-button";
 import { PlumGradientBackground } from "@/src/components/ui/PlumGradientBackground";
 import { useLedgerStore } from "@/src/store/useLedgerStore";
 import { useState } from "react";
+import { Button } from "heroui-native";
+import { View } from "react-native";
 
 export default function PulseTab() {
   const {
@@ -128,11 +129,17 @@ export default function PulseTab() {
         onTransactionLongPress={handleTransactionLongPress}
       />
 
-      <CustomButton
-        variant="secondary"
-        label="New Transaction"
-        onPress={() => setIsSheetOpen(true)}
-      />
+      <View className="my-6">
+        <Button
+          className="h-14 rounded-xl items-center justify-center flex-row bg-plum-deep"
+          feedbackVariant="scale"
+          onPress={() => setIsSheetOpen(true)}
+        >
+          <Button.Label className="font-bold text-foreground">
+            New Transaction
+          </Button.Label>
+        </Button>
+      </View>
       <TransactionSheet isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} />
 
       <DeleteTransactionDialog

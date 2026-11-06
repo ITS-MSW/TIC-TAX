@@ -5,7 +5,6 @@ import { formatCurrency } from "@/src/components/lib/format-currency";
 import { formatRunway } from "@/src/components/lib/format-runway";
 import { DeleteSubscriptionDialog } from "@/src/components/screens/runway/DeleteSubscriptionDialog";
 import { SurvivalClock } from "@/src/components/screens/runway/SurvivalClock";
-import { CustomButton } from "@/src/components/ui/custom-button";
 import { ExpenseList } from "@/src/components/ui/expense-list";
 import { Icon } from "@/src/components/ui/icon";
 import { PlumGradientBackground } from "@/src/components/ui/PlumGradientBackground";
@@ -137,11 +136,17 @@ export default function RunwayScreen() {
       />
 
       {/* Bottom Section: Action */}
-      <CustomButton
-        variant="secondary"
-        label="New Bleeding"
-        onPress={() => setIsSheetOpen(true)}
-      />
+      <View className="my-6">
+        <Button
+          className="h-14 rounded-xl items-center justify-center flex-row bg-plum-deep"
+          feedbackVariant="scale"
+          onPress={() => setIsSheetOpen(true)}
+        >
+          <Button.Label className="font-bold text-foreground">
+            New Bleeding
+          </Button.Label>
+        </Button>
+      </View>
 
       <SubscriptionSheet isOpen={isSheetOpen} onOpenChange={setIsSheetOpen} />
 
