@@ -4,13 +4,12 @@ import { formatCurrency } from "@/src/components/lib/format-currency";
 import { toCents } from "@/src/lib/ledger/money";
 import { OpportunityCost } from "@/src/components/screens/sandbox/OpportunityCost";
 import { SandboxInput } from "@/src/components/screens/sandbox/SandboxInput";
-import { Button } from "heroui-native";
+import { Button, Chip, ListGroup } from "heroui-native";
 import { Icon } from "@/src/components/ui/icon";
-import { ExpenseList } from "@/src/components/ui/expense-list";
 import { Text } from "@/src/components/ui/text";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useLedgerStore } from "@/src/store/useLedgerStore";
 
 type SandboxItem = {
@@ -97,20 +96,25 @@ export default function SandboxScreen() {
   };
 
   const renderCartItem = ({ item }: { item: SandboxItem }) => (
-    <TouchableOpacity
-      className="flex-row justify-between items-center py-4 border-b border-foreground/5"
+    <ListGroup.Item
+      className="px-0 py-4 gap-0 justify-between border-b border-foreground/5"
       onLongPress={() => removeFromSandbox(item.id)}
       delayLongPress={300}
     >
-      <View className="flex-1 mr-4">
-        <Text numberOfLines={1}>{item.name}</Text>
-      </View>
-      <View className="items-end">
+      <ListGroup.ItemContent className="mr-4">
+        <ListGroup.ItemTitle
+          className="text-base leading-6 font-medium text-foreground/80"
+          numberOfLines={1}
+        >
+          {item.name}
+        </ListGroup.ItemTitle>
+      </ListGroup.ItemContent>
+      <ListGroup.ItemSuffix className="items-end">
         <Text variant="large" className="text-red-500">
           -{formatCurrency(item.cost).replace("+ ", "")}
         </Text>
-      </View>
-    </TouchableOpacity>
+      </ListGroup.ItemSuffix>
+    </ListGroup.Item>
   );
 
   return (
@@ -139,13 +143,28 @@ export default function SandboxScreen() {
       />
 
       {/* Middle Section: The Regret List */}
-      <ExpenseList
-        data={cart}
-        keyExtractor={(item) => item.id}
-        title="The Regret List"
-        badge={`${cart.length} ITEMS`}
-        renderItem={renderCartItem}
-      />
+      <ListGroup variant="transparent" className="flex-1 py-4">
+        <View className="flex-row items-center justify-between mb-2">
+          <Text variant="large">The Regret List</Text>
+          <Chip variant="soft" color="danger" size="md">
+            <Chip.Label>{`${cart.length} ITEMS`}</Chip.Label>
+          </Chip>
+        </View>
+        <FlatList
+          data={cart}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled
+          ListEmptyComponent={
+            <View className="py-40 items-center">
+              <Text variant="small" className="text-foreground/20">
+                No Items Yet
+              </Text>
+            </View>
+          }
+          renderItem={renderCartItem}
+        />
+      </ListGroup>
 
       {/* Input & Action */}
       <SandboxInput
