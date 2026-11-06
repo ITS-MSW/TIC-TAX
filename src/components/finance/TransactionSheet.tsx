@@ -3,7 +3,6 @@ import { RenderIf } from "@/src/components/helpers/render-if";
 import { Show } from "@/src/components/helpers/show";
 import { toCents } from "@/src/lib/ledger/money";
 import { useLedgerStore } from "@/src/store/useLedgerStore";
-import { Text } from "@/src/components/ui/text";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import {
   BottomSheet,
@@ -15,7 +14,10 @@ import {
   cn,
 } from "heroui-native";
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
+import { withUniwind } from "uniwind";
+
+const StyledBottomSheetTextInput = withUniwind(BottomSheetTextInput);
 
 interface TransactionSheetProps {
   isOpen: boolean;
@@ -90,7 +92,9 @@ export function TransactionSheet({
         >
           <View className="gap-8 pb-safe">
             <View className="items-center">
-              <Text variant="large">New Transaction</Text>
+              <BottomSheet.Title className="text-xl font-semibold leading-7 text-foreground">
+                New Transaction
+              </BottomSheet.Title>
             </View>
 
             {/* IN/OUT Toggle */}
@@ -176,27 +180,27 @@ export function TransactionSheet({
             {/* Amount Input */}
             <TextField>
               <Label>Amount</Label>
-              <BottomSheetTextInput
+              <StyledBottomSheetTextInput
                 placeholder="0.00"
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="decimal-pad"
-                selectionColor="#f8fafc"
-                placeholderTextColor="#94a3b8"
-                style={styles.input}
+                selectionColorClassName="accent-foreground"
+                placeholderTextColorClassName="accent-field-placeholder"
+                className="min-h-[48px] rounded-[12px] border border-field-border bg-field px-[14px] py-[12px] text-[16px] text-foreground"
               />
             </TextField>
 
             {/* Note Input */}
             <TextField>
               <Label>Note</Label>
-              <BottomSheetTextInput
+              <StyledBottomSheetTextInput
                 placeholder="Optional note (Client, reason, etc.)"
                 value={note}
                 onChangeText={setNote}
-                selectionColor="#f8fafc"
-                placeholderTextColor="#94a3b8"
-                style={styles.input}
+                selectionColorClassName="accent-foreground"
+                placeholderTextColorClassName="accent-field-placeholder"
+                className="min-h-[48px] rounded-[12px] border border-field-border bg-field px-[14px] py-[12px] text-[16px] text-foreground"
               />
             </TextField>
 
@@ -250,17 +254,3 @@ export function TransactionSheet({
     </BottomSheet>
   );
 }
-
-const styles = StyleSheet.create({
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
-    backgroundColor: "rgba(255,255,255,0.04)",
-    color: "#f8fafc",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    borderRadius: 12,
-  },
-});

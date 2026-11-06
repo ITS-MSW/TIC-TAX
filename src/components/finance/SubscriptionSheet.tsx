@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
+import { withUniwind } from "uniwind";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { BottomSheet, Button, Label, TextField } from "heroui-native";
 import { useSubscriptionStore } from "@/src/store/useSubscriptionStore";
 import { toCents } from "@/src/lib/ledger/money";
-import { Text } from "@/src/components/ui/text";
+
+const StyledBottomSheetTextInput = withUniwind(BottomSheetTextInput);
 
 interface SubscriptionSheetProps {
   isOpen: boolean;
@@ -56,33 +58,35 @@ export function SubscriptionSheet({
         >
           <View className="gap-8 pb-safe">
             <View className="items-center">
-              <Text variant="large">New SaaS Bleed</Text>
+              <BottomSheet.Title className="text-xl font-semibold leading-7 text-foreground">
+                New SaaS Bleed
+              </BottomSheet.Title>
             </View>
 
             {/* Name Input */}
             <TextField>
               <Label>Service Name</Label>
-              <BottomSheetTextInput
+              <StyledBottomSheetTextInput
                 placeholder="e.g. ChatGPT"
                 value={name}
                 onChangeText={setName}
-                selectionColor="#f8fafc"
-                placeholderTextColor="#94a3b8"
-                style={styles.input}
+                selectionColorClassName="accent-foreground"
+                placeholderTextColorClassName="accent-field-placeholder"
+                className="min-h-[48px] rounded-[12px] border border-field-border bg-field px-[14px] py-[12px] text-[16px] text-foreground"
               />
             </TextField>
 
             {/* Monthly Cost Input */}
             <TextField>
               <Label>Monthly Cost (MAD)</Label>
-              <BottomSheetTextInput
+              <StyledBottomSheetTextInput
                 placeholder="0.00"
                 value={monthlyCost}
                 onChangeText={setMonthlyCost}
                 keyboardType="decimal-pad"
-                selectionColor="#f8fafc"
-                placeholderTextColor="#94a3b8"
-                style={styles.input}
+                selectionColorClassName="accent-foreground"
+                placeholderTextColorClassName="accent-field-placeholder"
+                className="min-h-[48px] rounded-[12px] border border-field-border bg-field px-[14px] py-[12px] text-[16px] text-foreground"
               />
             </TextField>
 
@@ -106,17 +110,3 @@ export function SubscriptionSheet({
     </BottomSheet>
   );
 }
-
-const styles = StyleSheet.create({
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
-    backgroundColor: "rgba(255,255,255,0.04)",
-    color: "#f8fafc",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    borderRadius: 12,
-  },
-});
