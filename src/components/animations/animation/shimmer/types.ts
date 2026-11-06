@@ -22,7 +22,7 @@ export interface ShimmerContextValue {
 /** Props for the root Shimmer component. Extends ViewProps. */
 export interface ShimmerProps extends ViewProps {
   /** Ref forwarded to the root View. */
-  ref?: React.Ref<View>;
+  ref?: React.Ref<React.ElementRef<typeof View>>;
   /** Enables visual debugging aids. @default false */
   debug?: boolean;
   children: React.ReactNode;
