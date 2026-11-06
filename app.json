@@ -53,7 +53,6 @@
       "expo-image",
       "expo-web-browser",
       "expo-secure-store",
-      "expo-sqlite",
       "expo-status-bar"
     ],
     "experiments": {

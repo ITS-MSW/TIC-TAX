@@ -28,19 +28,6 @@ type LedgerStore = {
   refreshFromDb: () => Promise<void>;
 };
 
-let triggerSync: (() => void) | null = null;
-
-export function registerLedgerSyncTrigger(callback: () => void): void {
-  triggerSync = callback;
-}
-
-function requestSync(): void {
-  if (__DEV__) {
-    console.log("[ledger-store] requestSync");
-  }
-  triggerSync?.();
-}
-
 function sortDesc(rows: LedgerTransactionRow[]): LedgerTransactionRow[] {
   return [...rows].sort((a, b) => b.created_at - a.created_at);
 }
@@ -57,9 +44,6 @@ function buildLedgerTransaction(
     category: input.category ?? null,
     note: input.note ?? null,
     tax_rate: input.taxRate ?? 100,
-    is_synced: 0,
-    sync_attempts: 0,
-    last_error: null,
     created_at: now,
     updated_at: now,
   };
@@ -124,8 +108,6 @@ export const useLedgerStore = create<LedgerStore>((set, get) => ({
     if (__DEV__) {
       console.log("[ledger-store] addTransaction:inserted", { id: row.id });
     }
-
-    requestSync();
   },
 
   cancelTransaction: async (id) => {
@@ -139,15 +121,10 @@ export const useLedgerStore = create<LedgerStore>((set, get) => ({
               ...row,
               status: "CANCELLED",
               updated_at: now,
-              is_synced: 0,
-              sync_attempts: 0,
-              last_error: null,
             }
           : row,
       ),
     }));
-
-    requestSync();
   },
 
   clearIncome: async (id) => {
@@ -161,15 +138,10 @@ export const useLedgerStore = create<LedgerStore>((set, get) => ({
               ...row,
               status: "CLEARED",
               updated_at: now,
-              is_synced: 0,
-              sync_attempts: 0,
-              last_error: null,
             }
           : row,
       ),
     }));
-
-    requestSync();
   },
 
   markTaxesPaid: async () => {
@@ -206,7 +178,5 @@ export const useLedgerStore = create<LedgerStore>((set, get) => ({
     set((state) => ({
       transactions: sortDesc([...state.transactions, paymentRow]),
     }));
-
-    requestSync();
   },
 }));

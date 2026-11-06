@@ -18,9 +18,6 @@ export type LedgerTransactionRow = {
   category: string | null;
   note: string | null;
   tax_rate: number;
-  is_synced: number;
-  sync_attempts: number;
-  last_error: string | null;
   created_at: number;
   updated_at: number;
 };
