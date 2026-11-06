@@ -15,10 +15,6 @@ import { Uniwind } from "uniwind";
 import { useEffect } from "react";
 import { convexClient } from "@/src/lib/convex/client";
 import { initLedgerDatabase } from "@/src/lib/ledger/sqlite";
-import {
-  bootstrapLedgerFromConvex,
-  startLedgerSyncEngine,
-} from "@/src/lib/ledger/sync-manager";
 import { useLedgerStore } from "@/src/store/useLedgerStore";
 
 const secureStorage = {
@@ -36,9 +32,7 @@ export default function RootLayout() {
     Uniwind.setTheme("dark");
     void (async () => {
       await initLedgerDatabase();
-      await bootstrapLedgerFromConvex();
       await useLedgerStore.getState().hydrate();
-      startLedgerSyncEngine();
     })();
 
     if (Platform.OS === "android") {
