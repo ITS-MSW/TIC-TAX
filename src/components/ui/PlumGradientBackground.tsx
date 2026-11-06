@@ -9,6 +9,7 @@ import { Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
+// Retained visual background for Pulse/Runway; this Skia scene is not a UI control.
 export function PlumGradientBackground() {
   return (
     <Canvas style={{ position: "absolute", top: 0, left: 0, width, height }}>

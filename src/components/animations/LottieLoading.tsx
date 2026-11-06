@@ -6,6 +6,7 @@ export interface LottieLoadingProps {
   size?: number;
 }
 
+// Retained custom motion consumed by FinanceSummary; HeroUI controls do not replace this asset.
 export function LottieLoading({ size = 24 }: LottieLoadingProps) {
   const animationRef = useRef<LottieView>(null);
 

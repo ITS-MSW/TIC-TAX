@@ -2,6 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import type { ComponentProps } from "react";
 import { withUniwind } from "uniwind";
 
+// Retained icon adapter: HeroUI Native does not provide a general-purpose icon set.
 const StyledIonicons = withUniwind(Ionicons);
 
 export type IconProps = Omit<ComponentProps<typeof StyledIonicons>, "name"> & {
