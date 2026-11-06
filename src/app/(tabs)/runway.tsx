@@ -1,4 +1,3 @@
-import { api } from "@/convex/_generated/api";
 import { SubscriptionSheet } from "@/src/components/finance/SubscriptionSheet";
 import { useFinance } from "@/src/components/hooks/useFinance";
 import { SafeScreen } from "@/src/components/layout/SafeScreen";
@@ -11,7 +10,8 @@ import { ExpenseList } from "@/src/components/ui/expense-list";
 import { Icon } from "@/src/components/ui/icon";
 import { PlumGradientBackground } from "@/src/components/ui/PlumGradientBackground";
 import { Text } from "@/src/components/ui/text";
-import { useMutation, useQuery } from "convex/react";
+import { useSubscriptionStore } from "@/src/store/useSubscriptionStore";
+import { centsToAmount } from "@/src/lib/ledger/money";
 import { useRouter } from "expo-router";
 import { Button } from "heroui-native";
 import { Calculator } from "lucide-react-native";
@@ -21,20 +21,21 @@ import { TouchableOpacity, View } from "react-native";
 export default function RunwayScreen() {
   const router = useRouter();
   const { safeToSpend, isLoading: financeLoading } = useFinance();
-  const queriedSubscriptions = useQuery(api.subscriptions.getSubscriptions);
-  const subscriptions = useMemo(
-    () => queriedSubscriptions ?? [],
-    [queriedSubscriptions],
+  const subscriptions = useSubscriptionStore((state) => state.subscriptions);
+  const subscriptionsHydrated = useSubscriptionStore(
+    (state) => state.isHydrated,
   );
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<
-    (typeof subscriptions)[number]["_id"] | null
+    (typeof subscriptions)[number]["id"] | null
   >(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const deleteSubscription = useMutation(api.subscriptions.deleteSubscription);
+  const deleteSubscription = useSubscriptionStore(
+    (state) => state.deleteSubscription,
+  );
 
-  const openDeleteDialog = (id: (typeof subscriptions)[number]["_id"]) => {
+  const openDeleteDialog = (id: (typeof subscriptions)[number]["id"]) => {
     setPendingDeleteId(id);
     setIsDeleteDialogOpen(true);
   };
@@ -49,7 +50,7 @@ export default function RunwayScreen() {
 
     setIsDeleting(true);
     try {
-      await deleteSubscription({ id: pendingDeleteId });
+      await deleteSubscription(pendingDeleteId);
       setIsDeleteDialogOpen(false);
       setPendingDeleteId(null);
     } catch (error) {
@@ -60,7 +61,9 @@ export default function RunwayScreen() {
   };
 
   const monthlyBurn = useMemo(() => {
-    return subscriptions.reduce((sum, sub) => sum + sub.monthlyCost, 0);
+    return centsToAmount(
+      subscriptions.reduce((sum, sub) => sum + sub.monthly_cost, 0),
+    );
   }, [subscriptions]);
 
   const runwayMonths = useMemo(() => {
@@ -77,7 +80,7 @@ export default function RunwayScreen() {
   }) => (
     <TouchableOpacity
       className="flex-row justify-between items-center py-2 border-b border-white/5"
-      onLongPress={() => openDeleteDialog(item._id)}
+      onLongPress={() => openDeleteDialog(item.id)}
       delayLongPress={300}
     >
       <View className="size-8 items-center justify-center shrink-0">
@@ -88,7 +91,7 @@ export default function RunwayScreen() {
       </View>
       <View className="items-end">
         <Text variant="xs">
-          {formatCurrency(item.monthlyCost).replace("+ ", "")}
+          {formatCurrency(centsToAmount(item.monthly_cost)).replace("+ ", "")}
         </Text>
       </View>
     </TouchableOpacity>
@@ -126,7 +129,8 @@ export default function RunwayScreen() {
 
       <ExpenseList
         data={subscriptions}
-        keyExtractor={(item) => item._id}
+        isLoading={!subscriptionsHydrated}
+        keyExtractor={(item) => item.id}
         title="Continuous Bleed"
         badge={`${subscriptions.length} ACTIVE`}
         renderItem={renderSubscription}

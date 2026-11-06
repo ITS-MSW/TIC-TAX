@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { BottomSheet, Button, Label, TextField } from "heroui-native";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useSubscriptionStore } from "@/src/store/useSubscriptionStore";
+import { toCents } from "@/src/lib/ledger/money";
 import { Text } from "@/src/components/ui/text";
 
 interface SubscriptionSheetProps {
@@ -18,17 +18,20 @@ export function SubscriptionSheet({
   const [name, setName] = useState("");
   const [monthlyCost, setMonthlyCost] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const addSubscription = useMutation(api.subscriptions.addSubscription);
+  const addSubscription = useSubscriptionStore(
+    (state) => state.addSubscription,
+  );
 
   const handleSubmit = async () => {
-    const cost = Number.parseFloat(monthlyCost);
-    if (!name || Number.isNaN(cost) || cost <= 0) return;
+    const cost = toCents(monthlyCost);
+    if (isSubmitting || !name || !Number.isSafeInteger(cost) || cost <= 0)
+      return;
 
     setIsSubmitting(true);
     try {
       await addSubscription({
         name,
-        monthlyCost: cost,
+        monthly_cost: cost,
       });
       setName("");
       setMonthlyCost("");
